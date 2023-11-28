@@ -166,7 +166,6 @@ public partial class MAVLink
 
             if (readcount >= MAVLink.MAVLINK_MAX_PACKET_LEN)
             {
-                return null;
                 throw new InvalidDataException("No header found in data");
             }
 
@@ -174,13 +173,7 @@ public partial class MAVLink
             var headerlengthstx = headerlength + 1;
 
             // read header
-            try {
-                ReadWithTimeout(BaseStream, buffer, 1, headerlength);
-            }
-            catch (EndOfStreamException)
-            {
-                return null;
-            }
+            ReadWithTimeout(BaseStream, buffer, 1, headerlength);
 
             // packet length
             int lengthtoread = 0;
@@ -197,15 +190,8 @@ public partial class MAVLink
                 lengthtoread = buffer[1] + headerlengthstx + 2 - 2; // data + header + checksum - U - length    
             }
 
-            try
-            {
-                //read rest of packet
-                ReadWithTimeout(BaseStream, buffer, headerlengthstx, lengthtoread - (headerlengthstx - 2));
-            }
-            catch (EndOfStreamException)
-            {
-                return null;
-            }
+            //read rest of packet
+            ReadWithTimeout(BaseStream, buffer, headerlengthstx, lengthtoread - (headerlengthstx-2));
 
             // resize the packet to the correct length
             Array.Resize<byte>(ref buffer, lengthtoread + 2);
@@ -357,8 +343,8 @@ public partial class MAVLink
                 {
                     signingKey = new byte[32];
                 }
-                
-                using (SHA256CryptoServiceProvider signit = new SHA256CryptoServiceProvider())
+
+                using (SHA256 signit = SHA256.Create())
                 {
                     MemoryStream ms = new MemoryStream();
                     ms.Write(signingKey, 0, signingKey.Length);

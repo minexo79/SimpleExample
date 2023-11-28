@@ -43,8 +43,8 @@ namespace SimpleExample
             // open the comport
             serialPort1.Open();
 
-            // set timeout to 2 seconds
-            serialPort1.ReadTimeout = 2000;
+            // set timeout to 5 seconds
+            serialPort1.ReadTimeout = 5000;
 
             BackgroundWorker bgw = new BackgroundWorker();
 
@@ -64,10 +64,13 @@ namespace SimpleExample
                     {
                         // read any valid packet from the port
                         packet = mavlink.ReadPacket(serialPort1.BaseStream);
-                        
+
                         // check its valid
                         if (packet == null || packet.data == null)
+                        {
+                            Console.WriteLine("Non Packet!!!");
                             continue;
+                        }
                     }
 
                     // check to see if its a hb packet from the comport
